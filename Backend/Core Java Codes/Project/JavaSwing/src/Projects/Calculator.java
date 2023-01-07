@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
-
 /**
  * @author Warlock Perry
  * Class to handle the Business Logic of the Calculator App.
@@ -31,7 +30,7 @@ class CalculateResult{
 	/**
 	 * This Function First Splits the Input string by white space.
 	 * Then finds the postfix expression of the input string.
-	 * and Finally calculated the postfix expression using stack and returns 
+	 * and Finally calculated the postfix expression using stack and returns.
 	 * the result if the string is valid else returns the Exception message.
 	 * @param string It's the Input String that contains Numbers and Operators.
 	 * @return	The Calculated result of the Input String.
