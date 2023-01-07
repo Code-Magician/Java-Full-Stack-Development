@@ -1,4 +1,4 @@
-package Swing.Projects;
+package Projects;
 
 import java.awt.Color;
 import java.awt.GridLayout;
