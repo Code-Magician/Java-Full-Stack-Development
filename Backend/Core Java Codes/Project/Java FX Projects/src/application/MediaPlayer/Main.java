@@ -1,25 +1,23 @@
-package application;
+package application.MediaPlayer;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-
-public class Test extends Application {
-	Rectangle rectangle;
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		Parent root = FXMLLoader.load(getClass().getResource("/fx.fxml"));
-		Scene scene = new Scene(root);
-		primaryStage.setScene(scene);
-		primaryStage.setTitle("Test");
-		
-		primaryStage.show();
-	}
+public class Main extends Application{
 	public static void main(String[] args) {
 		launch(args);
+	}
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
+		Scene scene = new Scene(root);
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("Scene Switching");
+		
+		primaryStage.show();
 	}
 }
