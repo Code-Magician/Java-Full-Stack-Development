@@ -5,15 +5,24 @@ import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 
 
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
-			Scene scene = new Scene(root,400,400);
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("Main.fxml"));
+			Parent root = loader.load();
+			Scene scene = new Scene(root);
 			primaryStage.setScene(scene);
+			
+			Controller controller = loader.getController();
+			controller.SetSceneNStage(scene);
+			controller.SetValidTitle();
+			
+			primaryStage.getIcons().add(new Image("/Logo.png"));
+			
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
