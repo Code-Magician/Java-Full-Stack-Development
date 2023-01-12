@@ -5,6 +5,20 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Stack;
 
+import javax.sql.RowSet;
+import javax.swing.text.StyledEditorKit.FontSizeAction;
+
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument; 
+import org.apache.pdfbox.pdmodel.PDPage; 
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
+
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -14,14 +28,16 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.media.VideoTrack;
+import javafx.scene.text.Font;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
- * @author Dell
- *
+ * @author <h1> Priyansh Kumar Singh </h1>
+ * @version 1.0
  */
 public class Controller  {
 	Double MIN_FONT_SIZE = 5.0;						// Minimum Font size that textArea can have.
@@ -72,17 +88,29 @@ public class Controller  {
 //		Setting valid title to the App when it openes first.
 		SetValidTitle();
 		
-//		Setting Change Listener to the the TextArea.
-		SetTexAreaChangeListener();
+//		Setting Change Listeners to the the TextArea.
+		SetTextAreaListeners();
 	}
 	
 	
 	
 	/**
-	 * Sets the Change Listener in Text Area.
+	 * Adds Caret Position and text change listener.
 	 */
-	public void SetTexAreaChangeListener()
+	public void SetTextAreaListeners()
 	{
+//		Caret Position Listener.
+		textArea.caretPositionProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+//				Set caret position on every change in Text Area.
+				SetCaretPosition();
+			}
+			
+		});
+		
+//		Text Change Listener.
 		textArea.textProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -101,62 +129,41 @@ public class Controller  {
 				
 //				Set valid title.
 				SetValidTitle();
-				
-//				Set caret position on every change in Text Area.
-				SetCaretPosition();
 			}
 		});
 	}
-
+	
 	
 	
 	/**
 	 * Changes locationLabel based on caret position.
-	 * @deprecated Incomplete
 	 */
 	public void SetCaretPosition() {
-//		String[] strings =  textArea.getText().split("\n");
-//		System.out.println();
-//		for(String x:strings)
-//		{
-//			System.out.println(x);
-//		}
-//		System.out.println(textArea.getCaretPosition());
-//		System.out.println();
-//		
-//		int caret = textArea.getCaretPosition();
-//		int sum=0, i = 0;
-//		while(caret > sum)	{
-//			sum += strings[i].length();
-//			i++;
-//		}
-//		
-//		row = i;
-//		col = caret-strings[i== 0?i:i-1].length();
-//		
+//		Getting the caret position.
+		int caret = textArea.getCaretPosition();
 		
-		
-		int caret = textArea.getCaretPosition(), currNewLine = 0;
+//		Getting the current textArea string and calculating it's length.
 		String textString = textArea.getText();
+		int currTextLength = textString.length();
 		
-		System.out.println(textArea.getBaselineOffset());
-		
-		row = 0; col = 0;
-		boolean found = false;
-		for(int i=0; i<Math.min(caret+1, textString.length()); i++)
+//		Initial row is 1 and column is 0.
+		row = 1; col = 0;
+		for(int i=0; i<Math.min(caret, currTextLength); i++)
 		{
+//			If newline character is found in string then increase row number and set column number to 0.
 			if(textString.charAt(i) == '\n')
 			{
 				row++;
-				found =true;
-				currNewLine = i;
+				col = 0;
+			}
+//			Else increase the column number.
+			else {
+				col++;
 			}
 		}
 		
-		if(!found)	currNewLine = 0;
-		col = caret - currNewLine;
+//		Setting the location label.
 		locationLabel.setText("Ln : " + row + ", Col : " + col);
-		
 	}
 	
 	
@@ -183,18 +190,6 @@ public class Controller  {
 	
 	
 	/**
-	 * Makes the file unsaved and changes name accordingly.
-	 * @deprecated  Not Needed.
-	 */
-	public void MakeUnsaved()
-	{
-		hasUpdateSaved = false;
-		SetValidTitle();
-	}
-	
-	
-	
-	/**
 	 * If the file is not saved then this alert box appears.
 	 */
 	public Alert SavingAlert()
@@ -212,6 +207,18 @@ public class Controller  {
 		alert.getButtonTypes().addAll(dSaveButtonType, saveButtonType);
 			
 		return alert;
+	}
+	
+	
+	/**
+	 * Filters the files with extension provided in File chooser Dialog.
+	 * @param fileChooser	Extension filter will be set in this file choooser.
+	 * @param extension		Extension that will be filtered.
+	 */
+	public void SetExtentionFilter(FileChooser fileChooser, String extension)
+	{
+		FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("TXT FILE (*." +extension + ")", "*." +extension);
+		fileChooser.getExtensionFilters().add(extensionFilter);
 	}
 	
 	
@@ -237,11 +244,12 @@ public class Controller  {
 	 * <br>
 	 * Sets the text of the file to textArea so we can edit.
 	 */
-	public void Func_File_Open()
+	public void File_Open()
 	{
 //		Opens a file chooser.
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open File");
+		SetExtentionFilter(fileChooser, "txt");
 		
 //		If file is not saved then open saving alert box. else continue to open the open dialog.
 		if(!hasUpdateSaved)
@@ -258,7 +266,7 @@ public class Controller  {
 //			If the button type has data yes which is for Save. then save file.
 			if(type.getButtonData() == ButtonData.YES)
 			{
-				Func_File_Save();
+				File_Save();
 				
 //				If the user clicked on Open->Save(Alert)->Cancel then just return to previous opened file and do noting.
 				if(!hasUpdateSaved)		return;
@@ -322,12 +330,12 @@ public class Controller  {
 	 * <br>
 	 * else save the content of textArea in the opened file.
 	 */
-	public void Func_File_Save()
+	public void File_Save()
 	{	
 //		If file is null then call save as
 		if(file == null)
 		{
-			Func_File_SaveAs();
+			File_SaveAs();
 			return;
 		}
 		
@@ -359,11 +367,12 @@ public class Controller  {
 	 * <br>
 	 * Saves content of the textArea in empty file.
 	 */
-	public void Func_File_SaveAs()
+	public void File_SaveAs()
 	{
 //		Make an instance of file chooser.
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save File");
+		SetExtentionFilter(fileChooser, "txt");
 		
 //		Open save file dialog.
 		File savedfile = fileChooser.showSaveDialog(stage);
@@ -398,11 +407,102 @@ public class Controller  {
 	
 	/**
 	 * Print the content of file as a pdf.
-	 * @deprecated Incomplete
+	 * @throws IOException 
 	 */
-	public void Func_File_Print()
+	public void File_Print() throws IOException 
 	{
+//		Open File Chooser
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Save As PDF File");
 		
+//		Set Extension to PDF.
+		SetExtentionFilter(fileChooser, "pdf");
+		
+//		Open Save file dialog.
+		File savedFile = fileChooser.showSaveDialog(stage);
+		
+//		If no file is saved and dialog closed then return.
+		if(savedFile == null)	return;
+		
+//		Getting file path and content.
+		String filePath =	savedFile.getAbsolutePath();
+//		Have to split using newline character because PDFBOX encoding does not support special characters like '\n'.
+        String[] content = textArea.getText().split("\n");
+         
+//      Make an PDF document.
+        PDDocument doc = new PDDocument();
+        try {
+//        	Make a PDF page.
+            PDPage page = new PDPage();
+            
+//          Add Page to PDF Document.
+            doc.addPage(page);
+             
+//          Font of the text.
+            PDFont font = new PDType1Font(FontName.TIMES_ROMAN);
+ 
+//          Open PDF content stream.
+            PDPageContentStream contents = new PDPageContentStream(doc, page, AppendMode.APPEND, true, true);
+            
+//          Begin the Text Content writing for PDF.
+            contents.beginText();
+            
+//          Set Font and size.
+            int fontSize = (int)textArea.getFont().getSize();
+            contents.setFont(font, fontSize);
+            
+//          Set offset (x, y) or starting position of text in a page.
+//          (0, 0) is at bottom left.
+            int initialX = 25, initialY = (int) (page.getCropBox().getHeight()-25);
+            contents.setLeading((float)(4.0*fontSize/5.0));
+            contents.newLineAtOffset(initialX, initialY);
+            
+            int maxLinesInOnePage = (initialY-25)/((9*fontSize)/5);
+
+//          Add Content to the page.
+            for(int i=0; i<content.length; i++)
+            {
+            	contents.showText(content[i]);
+            	contents.newLine();
+            	
+            	if((i+1)%maxLinesInOnePage == 0)	
+            	{
+            		PDPage newPage = new PDPage();
+            		doc.addPage(newPage);
+            		
+            		page = newPage;
+            		contents.endText();
+            		contents.close();
+            		
+            		contents = new PDPageContentStream(doc, page, AppendMode.APPEND, true, true);
+            		contents.beginText();
+            		
+                    contents.setFont(font, fontSize);
+                    
+                    contents.setLeading((float)(4.0*fontSize/5.0));
+                    contents.newLineAtOffset(initialX, initialY);
+            	}
+            }
+            
+//          End the Text content writing in PDF.
+            contents.endText();
+            
+//          Close the Content stream.
+            contents.close();
+
+//          Save the PDF Document in the specified path.
+            doc.save(filePath);
+        }
+        catch (IOException e) {
+        	System.out.println(e.getMessage());
+		}
+        catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+        finally {
+//        	Close the Document.
+            doc.close();
+        }
 	}
 	
 	
@@ -412,7 +512,7 @@ public class Controller  {
 	 * <br>
 	 * If file is unsaved then opens a warning dialog box.
 	 */
-	public void Func_File_Exit()
+	public void File_Exit()
 	{
 		if(!hasUpdateSaved)
 		{
@@ -427,7 +527,7 @@ public class Controller  {
 			
 //			If the button type has data yes which is for Save. then save file.
 			if(type.getButtonData() == ButtonData.YES) {
-				Func_File_Save();
+				File_Save();
 				
 				if(!hasUpdateSaved)	return;
 			}
@@ -438,141 +538,258 @@ public class Controller  {
 	
 	
 	
-	public void Func_Edit_Cut()
+	/**
+	 * Cuts the Selected Text in the textArea and adds it to top of clipboard.
+	 */
+	public void Edit_Cut()
 	{
 		textArea.cut();
-		
 	}
 	
+	
+	
+	/**
+	 * Copies the Selected Text in the textArea and adds it to top of clipboard.
+	 */
 	public void Edit_Copy()
 	{
 		textArea.copy();
 	}
 	
+	
+	
+	/**
+	 * Pastes the text at top of the clipboard to the caret position.
+	 */
 	public void Edit_Paste()
 	{
+//		Get the system clipboard.
 		Clipboard clipboard = Clipboard.getSystemClipboard();
 		
+//		If clipboard does not have content of text format then return.
 		if(!clipboard.hasContent(DataFormat.PLAIN_TEXT))
 		{
 			return;
 		}
 		
+//		get the top text content from clipboard.
 		String string = clipboard.getString();
+		
+//		Insert the text at the caret position.
 		textArea.insertText(textArea.getCaretPosition(), string);
 	}
 	
+	
+	
+	/**
+	 * Delete the selected text in textArea.
+	 */
 	public void Edit_Delete()
 	{
 		textArea.deleteText(textArea.getSelection());
 	}
 	
 	
+	
+	/**
+	 * Sets the Replace all panel to true.
+	 */
 	public void Edit_ReplaceAll()
 	{
 		replaceAllPane.setVisible(true);
+		textArea.setDisable(true);
 	}
 	
+	
+	
+	/**
+	 * Gets the replacing text and replace with text from replaceAllPane.
+	 * then replaces the texts.
+	 */
 	public void ReplaceAll()
 	{
+		Reset();
+		
+//		If the replacing text is empty then return.
 		if(replaceTextField.getText().isEmpty())	return;
 		
+//		Replaces the text
 		textArea.setText(textArea.getText().replace(replaceTextField.getText(), replaceWithField.getText()));
-		replaceAllPane.setVisible(false);
 	}
 	
+	
+	
+	/**
+	 * Sets gotoPaneBox visible and calls Move caret function
+	 * <br>
+	 * which moves the caret to the specified line.
+	 */
 	public void Edit_GotoLine()
 	{
 		gotoPaneBox.setVisible(true);
-		MoveCaret();
+		textArea.setDisable(true);
 	}
 	
+	
+	
+	/**
+	 * Moves the Caret to the specified line.
+	 */
 	public void MoveCaret()
 	{
-		String gotoString = gotoLineField.getText();
-		if(gotoString.isEmpty())	return;
+//		Stores the row number to set caret in.
+		int rowIn = textArea.getCaretPosition();
 		
-		int pos = row;
+//		Parsing the row number input from the gotoLineField.
 		try {
-			pos = Integer.parseInt(gotoString);
+			rowIn = Integer.parseInt(gotoLineField.getText());
 		}catch (NumberFormatException e) {
-			System.out.println("Not a Number. Invalid Caret Position");
+			gotoLineField.setText("Invalid Input.");
+			return;
 		}catch (Exception e) {
-			System.out.println(e.getMessage());
+			gotoLineField.setText(e.getMessage());
+			return;
 		}
 		
+		Reset();
 		
+//		Getting the textArea string and it's current length.
 		String textString = textArea.getText();
-		int cnt = 0;
-		for(int i=0; i<textString.length(); i++)
+		int currTextLength = textString.length();
+		
+//		Counting Maximum rows in textArea.
+		int maxRows = 1;
+		for(int i=0;i<currTextLength; i++)
 		{
-			if(textString.charAt(i) == '\n')	cnt++;
-			if(cnt == pos) {
-				pos = i;
-				break;
+			if(textString.charAt(i) == '\n')	maxRows++;
+		}
+		
+//		Stores the final position of the caret.
+		int caretPosFinal = textArea.getCaretPosition();
+		
+//		If the row number input is not between [1, maxRows] range then do nothing.
+		if(rowIn > maxRows || rowIn <= 0)	return;
+		else
+		{
+//			Count the position of the input row number and set the position to the {caretPosFinal}.
+			int row = 1;
+			for(int i=0;i<currTextLength; i++)
+			{
+				if(row == rowIn)
+				{
+					caretPosFinal = i;
+					break;
+				}
+				
+				if(textString.charAt(i) == '\n')		row++;
 			}
 		}
 		
-		if(cnt < pos)
-		{
-			pos = GetMaxCaretPos();
-		}
-		
-		textArea.positionCaret(pos);
-		gotoPaneBox.setVisible(false);
+//		Set the Caret Position.
+		textArea.positionCaret(caretPosFinal);
 	}
 	
-	public int GetMaxCaretPos()
+	
+	public void Reset()
 	{
-		int count = 0;
-		String textString = textArea.getText();
-		for(int i = 0; i< textString.length(); i++)
-		{
-			if(textString.charAt(i) == '\n')	count++;
-		}
-		return count;
+//		System.out.println("Clicked");
+		replaceAllPane.setVisible(false);
+		gotoPaneBox.setVisible(false);
+		textArea.setDisable(false);
 	}
 	
+	
+	
+	/**
+	 * Selects all the text in the textArea.
+	 */
 	public void Edit_SelectAll()
 	{
 		textArea.selectAll();
 	}
 	
 	
+	
+	
+	/**
+	 * Appends the current time and date in the textArea.
+	 */
 	public void Edit_TimeDate()
 	{
+//		Getting local time date.
 		LocalDateTime dt = LocalDateTime.now();
+		
+//		Appending current time date at end of textArea text in the format mentioned below.
 		textArea.appendText(DateTimeFormatter.ofPattern("dd/MMM/yyyy  HH:mm:ss").format(dt));
 	}
 	
+	
+	
+	/**
+	 * Replaces the current text in textArea with 
+	 * <br>
+	 * previously saved text.
+	 */
 	public void Edit_Undo()
 	{
+//		If stack is empty or there were no save points then replace text with the initial text.
 		if(undoStack.isEmpty())
 		{
 			textArea.setText(intialContentString);
 		}
+//		Else pop the last saved text and set it.
 		else {
 			String textString = undoStack.pop();
 			textArea.setText(textString);
 		}
 	}
 	
+	
+	
+	/**
+	 * Increases the Font size by 1 unit.
+	 */
 	public void View_ZoomIn()
 	{
-		double font = textArea.getFont().getSize();
-		font = Math.min(font+1, MAX_FONT_SIZE);
-		textArea.setStyle("-fx-font-size : "+font);
+//		Getting the current font size.
+		double fontSize = textArea.getFont().getSize();
+		
+//		Increase the font size by 1 and bound it in between the Range Specified.
+		fontSize = Math.min(fontSize+1, MAX_FONT_SIZE);
+		
+//		Set the font size.
+		Font font = new Font(textArea.getFont().getName(), fontSize);
+		textArea.fontProperty().set(font);
 	}
 	
+	
+	
+	/**
+	 * Decreases the Font size by 1 unit.
+	 */
 	public void View_ZoomOut()
 	{
-		double font = textArea.getFont().getSize();
-		font = Math.max(font-1, MIN_FONT_SIZE);
-				textArea.setStyle("-fx-font-size : "+font);
+//		Getting the current font size.
+		double fontSize = textArea.getFont().getSize();
+		
+//		Decrease the font size by 1 and bound it in between the Range Specified.
+		fontSize = Math.max(fontSize-1, MIN_FONT_SIZE);
+		
+//		Set the font size.
+		Font font = new Font(textArea.getFont().getName(), fontSize);
+		textArea.fontProperty().set(font);
 	}
 	
+	
+	
+	/**
+	 * Reset the Font size to default.
+	 * <br>
+	 * which is 12.0
+	 */
 	public void View_ZoomReset()
 	{
-		textArea.setStyle("-fx-font-size : "+DEFAULT_FONT_SIZE);
+		Font font = new Font(textArea.getFont().getName(), DEFAULT_FONT_SIZE);
+		textArea.fontProperty().set(font);
 	}
 }

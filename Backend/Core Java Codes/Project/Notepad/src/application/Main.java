@@ -37,7 +37,7 @@ public class Main extends Application {
 				@Override
 				public void handle(WindowEvent e) {
 					e.consume();
-					controller.Func_File_Exit();
+					controller.File_Exit();
 				}
 			});
 			
