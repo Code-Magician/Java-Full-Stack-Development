@@ -40,7 +40,7 @@ import javafx.stage.Stage;
  * @version 1.0
  */
 public class Controller  {
-	Double MIN_FONT_SIZE = 5.0;						// Minimum Font size that textArea can have.
+	Double MIN_FONT_SIZE = 10.0;					// Minimum Font size that textArea can have.
 	Double DEFAULT_FONT_SIZE = 12.0;				// Default Font size of text Area.
 	Double MAX_FONT_SIZE = 50.0;					// Maximum Font size that textArea can have.
 	
@@ -217,7 +217,7 @@ public class Controller  {
 	 */
 	public void SetExtentionFilter(FileChooser fileChooser, String extension)
 	{
-		FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("TXT FILE (*." +extension + ")", "*." +extension);
+		FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("FILE EXTENTION : (*." +extension + ")", "*." +extension);
 		fileChooser.getExtensionFilters().add(extensionFilter);
 	}
 	
@@ -453,34 +453,49 @@ public class Controller  {
             
 //          Set offset (x, y) or starting position of text in a page.
 //          (0, 0) is at bottom left.
-            int initialX = 25, initialY = (int) (page.getCropBox().getHeight()-25);
-            contents.setLeading((float)(4.0*fontSize/5.0));
+            int initialX = (Integer)MAX_FONT_SIZE.intValue(), initialY = (int) (page.getBBox().getHeight()-MAX_FONT_SIZE);
             contents.newLineAtOffset(initialX, initialY);
             
-            int maxLinesInOnePage = (initialY-25)/((9*fontSize)/5);
-
+//          Set Vertical distance between lines.
+            float leadingDist = (float)(4.0*fontSize/5.0);
+            contents.setLeading(leadingDist);
+            
+//          Max Number of lines that can be adjusted in one page.
+//          Page length is multiplied by factor of 2.2 and then divided by the (fontsize + leadingDist).
+            int maxLinesInOnePage = (int)(((2.2*(initialY))/(float)(fontSize + leadingDist)));
+            
 //          Add Content to the page.
             for(int i=0; i<content.length; i++)
             {
+//            	Adding text
             	contents.showText(content[i]);
+//            	Making new Line.
             	contents.newLine();
             	
+//            	if current number of lines is a multiple of maximum number of lines then add new page.
             	if((i+1)%maxLinesInOnePage == 0)	
             	{
-            		PDPage newPage = new PDPage();
-            		doc.addPage(newPage);
-            		
-            		page = newPage;
+//					End the text and close the previous page stream.
             		contents.endText();
             		contents.close();
             		
+//            		Making a new page and adding it to the document.
+            		PDPage newPage = new PDPage();
+            		doc.addPage(newPage);
+            		
+//            		Setting newPage to the page variable.
+            		page = newPage;
+            		
+//            		Opening new Content stream for this new page in append mode and beginning text.
             		contents = new PDPageContentStream(doc, page, AppendMode.APPEND, true, true);
             		contents.beginText();
             		
+//            		Setting font.
                     contents.setFont(font, fontSize);
                     
-                    contents.setLeading((float)(4.0*fontSize/5.0));
+//                  Setting line offsets and leading distance.
                     contents.newLineAtOffset(initialX, initialY);
+                    contents.setLeading((float)(4.0*fontSize/5.0));
             	}
             }
             

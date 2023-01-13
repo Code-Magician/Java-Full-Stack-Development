@@ -24,6 +24,8 @@ public class Main extends Application {
 			Scene scene = new Scene(root);
 			primaryStage.setScene(scene);
 			
+			primaryStage.setMinHeight(200); 	primaryStage.setMinWidth(300);
+			
 //			Getting Controller used in the FXML Document and Initializing.
 			Controller controller = loader.getController();
 			controller.Initialize(scene);

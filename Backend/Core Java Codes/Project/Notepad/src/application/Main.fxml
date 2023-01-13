@@ -17,35 +17,71 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#Reset" onMouseClicked="#Reset" prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="200.0" minWidth="300.0" onKeyPressed="#Reset" onMouseClicked="#Reset" prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
    <children>
       <MenuBar layoutX="10.0" layoutY="10.0" prefHeight="30.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <menus>
             <Menu mnemonicParsing="false" onAction="#Reset" text="File">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#File_New" text="New" />
-                  <MenuItem mnemonicParsing="false" onAction="#File_Open" text="Open" />
-                  <MenuItem mnemonicParsing="false" onAction="#File_Save" text="Save" />
-                  <MenuItem mnemonicParsing="false" onAction="#File_SaveAs" text="Save as" />
+                  <MenuItem mnemonicParsing="false" onAction="#File_New" text="New">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#File_Open" text="Open">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#File_Save" text="Save">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#File_SaveAs" text="Save as">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="ANY" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#File_Print" text="Print" />
+                  <MenuItem mnemonicParsing="false" onAction="#File_Print" text="Print">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#File_Exit" text="Exit" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" onAction="#Reset" text="Edit">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_Undo" text="Undo" />
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_Undo" text="Undo">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_Cut" text="Cut" />
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_Copy" text="Copy" />
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_Paste" text="Paste" />
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_Cut" text="Cut">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_Copy" text="Copy">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="C" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_Paste" text="Paste">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="V" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <MenuItem mnemonicParsing="false" onAction="#Edit_Delete" text="Delete" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_ReplaceAll" text="Replace All" />
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_GotoLine" text="Goto Line" />
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_ReplaceAll" text="Replace All">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_GotoLine" text="Goto Line">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="G" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#Edit_SelectAll" text="Select All" />
+                  <MenuItem mnemonicParsing="false" onAction="#Edit_SelectAll" text="Select All">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <MenuItem mnemonicParsing="false" onAction="#Edit_TimeDate" text="Time/Date" />
                </items>
             </Menu>
@@ -53,15 +89,18 @@
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#View_ZoomIn" text="Zoom In">
                      <accelerator>
-                        <KeyCodeCombination alt="UP" code="EQUALS" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                        <KeyCodeCombination alt="UP" code="EQUALS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
                   <MenuItem mnemonicParsing="false" onAction="#View_ZoomOut" text="Zoom Out">
                      <accelerator>
-                        <KeyCodeCombination alt="UP" code="MINUS" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                        <KeyCodeCombination alt="UP" code="MINUS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#View_ZoomReset" text="Reset Default" />
+                  <MenuItem mnemonicParsing="false" onAction="#View_ZoomReset" text="Reset Default">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="DIGIT0" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                </items>
             </Menu>
          </menus>
