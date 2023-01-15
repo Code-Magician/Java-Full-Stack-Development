@@ -7,7 +7,6 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane fx:id="gamePanel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700.0" minWidth="700.0" prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SnakeGame.GameController">
    <children>
       <Label fx:id="scoreLabel" alignment="CENTER" contentDisplay="CENTER" layoutY="2.0" opacity="0.5" prefHeight="48.0" prefWidth="700.0" style="-fx-background-color: blue; -fx-border-color: white;" text="Score : 0" textFill="RED" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -15,7 +14,7 @@
             <Font name="Bookman Old Style Bold" size="36.0" />
          </font>
       </Label>
-      <Button fx:id="pauseButton" alignment="CENTER" contentDisplay="CENTER" layoutX="603.0" layoutY="3.0" mnemonicParsing="false" onAction="#PauseButton" prefHeight="25.0" prefWidth="100.0" style="-fx-background-color: black;" text="Pause" textFill="WHITE" underline="true" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <Button fx:id="pauseButton" alignment="CENTER" contentDisplay="CENTER" layoutX="603.0" layoutY="3.0" mnemonicParsing="false" onAction="#TogglePause" prefHeight="25.0" prefWidth="100.0" style="-fx-background-color: black;" text="Pause" textFill="WHITE" underline="true" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <font>
             <Font name="Candara Italic" size="24.0" />
          </font>

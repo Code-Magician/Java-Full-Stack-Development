@@ -30,9 +30,13 @@ public class GameController {
 	private SnakeController snakeController;					// Instance of Snake Controller class.
 	private ArrayList<Food> foods;								// List that stores all the instance of Food class.
 	
+	private AnimationTimer updateTimer;							// Timer that runs inside the update game method each frame.
 	
 	long score;													// Players current score.
-	boolean isPause = false;									// Tell is the game paused or not.
+	boolean pause = false;										// Tell is the game paused or not.
+	int rad;													// Radius of the circle used as a snake part.
+	
+	int cnt = 999;												// Helper Variable to make food items. It Increases by value 1 per frame.
 	
 	
 	
@@ -59,11 +63,11 @@ public class GameController {
 //		Setting Initial Score.
 		score = 0;
 		
+//		Setting Radius of circle used as a snake part.
+		rad = (int)snakeController.head.part.getRadius();
+		
 //		Setting Focus on Button to false.
 		pauseButton.setFocusTraversable(false);
-		
-//		Creating a new Food instance and adding it to the foods list.
-		foods.add(new Food(gamePanel, SCREEN_WIDTH, SCREEN_HEIGHT));
 		
 //		Setting key Listeners on the Game.
 		SetKeyListener();
@@ -75,15 +79,18 @@ public class GameController {
 	
 	
 	/**
-	 * 
+	 * Updates the Game each frame.
 	 */
 	private void UpdateGame()
 	{
 //		Animation Timer that runs once per frame.
-		new AnimationTimer() {
+	   updateTimer = new AnimationTimer() {
 			
 			@Override
 			public void handle(long arg0) {
+				if(snakeController.HasNoParts())	return;
+				
+				cnt++;
 				CheckFoodCollision();
 				CheckBoundaryCrossed();
 				
@@ -94,7 +101,9 @@ public class GameController {
 					GameOver();
 				}
 			}
-		}.start();
+		};
+		
+		updateTimer.start();
 	}
 	
 	
@@ -103,6 +112,8 @@ public class GameController {
 	 * Handles the change in position of the head of the snake if it crossed boundary.
 	 */
 	private void CheckBoundaryCrossed() {
+		if(snakeController.HasNoParts()) return;
+		
 //		Head part of the snake.
 		SnakePart headPart = snakeController.head;
 		
@@ -115,11 +126,11 @@ public class GameController {
 		
 //		If head did not crossed any boundary previously then check if it crossed now or not.
 		if(!did) {
-			if(x > SCREEN_WIDTH) 	{ did = true;		x = 0 ; 			}
-			else if(x < 0)	 		{ did = true;		x = SCREEN_WIDTH ; 	}
+			if(x > SCREEN_WIDTH + rad) 	{ did = true;		x = -rad ; 			}
+			else if(x < -rad)	 		{ did = true;		x = SCREEN_WIDTH  + rad; 	}
 		
-			if(y > SCREEN_HEIGHT) 	{ did = true;		y = 0 ; 			}
-			else if(y < 0)			{ did = true;		y = SCREEN_HEIGHT ;	}
+			if(y > SCREEN_HEIGHT + rad) { did = true;		y = -rad ; 			}
+			else if(y < -rad)			{ did = true;		y = SCREEN_HEIGHT + rad;	}
 		}
 		
 //		If head crossed the boundaries then set the new calculated position.
@@ -164,9 +175,21 @@ public class GameController {
 //				Increasing the size of the snake.
 				snakeController.IncreaseSize();
 				
-//				Creating and adding the new food item to the list.
-				foods.add(new Food(gamePanel, SCREEN_WIDTH, SCREEN_HEIGHT));
+//				Creating a new Food instance and adding it to the foods list.
+				if(foods.size() <= 10) {
+					foods.add(new Food(gamePanel, SCREEN_WIDTH, SCREEN_HEIGHT));
+					cnt = 1;
+				}
 			}
+		}
+		
+		
+		if(cnt %600 == 0)
+		{
+			cnt = 1;
+			
+//			Creating a new Food instance and adding it to the foods list.
+			foods.add(new Food(gamePanel, SCREEN_WIDTH, SCREEN_HEIGHT));
 		}
 	}
 	
@@ -175,23 +198,44 @@ public class GameController {
 	/**
 	 * When Snake Touches itself.
 	 * Then this function is invoked.
-	 * @deprecated Incomplete
 	 */
 	private void GameOver()
-	{
-		PauseButton();
+	{	
+//		Pause the game and make pause button disable.
+		pause = true; 	TogglePause();
+		pauseButton.setDisable(true);
+		
+//		Clear all food items from gamePanel and clear the foods list.
+		for(Food x:foods)	gamePanel.getChildren().remove(x.food);
+		foods.clear();
+		
+//		Remove the snake from the gamePanel.
+		snakeController.RemoveSnake();
+		
+//		Make game over Panel visible.
 		gameOverPanel.setVisible(true);
 	}
 	
 	
 	
 	/**
-	 * Starts a new Game.
-	 * @deprecated Incomplete
+	 * Reset the game as a new one.
 	 */
 	public void Restart()
 	{
-//		Reset
+//		Make Game over Panel invisible.
+		gameOverPanel.setVisible(false);
+		
+//		Make score 0 and update score label.
+		score = 0;
+		scoreLabel.setText("Score : 0");
+		
+//		Make the new snake.
+		snakeController.MakeInitialSnake();
+		
+//		Unpause the game and make the pause button enabled.
+		pause = false;	TogglePause();
+		pauseButton.setDisable(false);
 	}
 	
 	
@@ -210,18 +254,22 @@ public class GameController {
 	/**
 	 * Pauses and Un-Pauses the game.
 	 */
-	public void PauseButton()
+	public void TogglePause()
 	{
-		if(isPause)	{
+//		If pause is false then UN-Pause the game. Start the update timer and move the snake head.
+		if(!pause)	{
 			pauseButton.setText("Pause");
-			snakeController.head.anim.play();
+			updateTimer.start();
+			if(!snakeController.HasNoParts()) snakeController.head.anim.play();
 		}
-		else {		
+//		Else pause the game. Stop the update timer and pause the snake head.
+		else {	
 			pauseButton.setText("Play");
-			snakeController.head.anim.pause();
+			updateTimer.stop();
+			if(!snakeController.HasNoParts()) snakeController.head.anim.pause();
 		}
 		
-		isPause = !isPause;
+		pause = !pause;
 	}
 	
 	
@@ -235,6 +283,8 @@ public class GameController {
 
 			@Override
 			public void handle(KeyEvent key) {
+				if(snakeController.HasNoParts())	key.consume();
+				
 				switch (key.getCode()) {
 				case UP:
 				case W:

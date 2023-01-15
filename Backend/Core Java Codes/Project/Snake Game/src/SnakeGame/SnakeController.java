@@ -3,8 +3,6 @@ package SnakeGame;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.Interpolator;
@@ -76,6 +74,9 @@ public class SnakeController {
 	Double animTime = 20000.0, animDist = -1000000.0;			// Animation Timer and Distance to cover by head animation.
 	
 	int cnt = 0;												// Helper variable in Adding Coordinates to the snakeParts pool.
+	double rate = 2.5;											// Speed of snake.
+	
+	
 	
 	
 	
@@ -87,11 +88,12 @@ public class SnakeController {
 //		Initializing the ArrayList.
 		snakeParts = new ArrayList<>();
 		
-//		Increasing size of the snake.
-		IncreaseSize();
+//		Making Initial snake with 3 parts.
+		MakeInitialSnake();
 		
 //		Getting the head of the snake.
 		head = snakeParts.get(0);
+		
 	}
 	
 	
@@ -121,7 +123,7 @@ public class SnakeController {
 				Deque<Point2D> pool = snakeParts.get(i).pool;
 				
 //				Maintaining the size of pool as 10.
-				if(pool.size() >= 10)	pool.removeFirst();
+				if(pool.size() >= 4)	pool.removeFirst();
 				
 //				Adding current position to the end of pool queue.
 				pool.addLast(new Point2D(
@@ -144,9 +146,11 @@ public class SnakeController {
 	 */
 	public void IncreaseSize()
 	{
+//		Make a snake part with center at (0, 0) and radius = 20.
 		SnakePart snakePart = new SnakePart(0, 0, 20, animTime);
 		snakePart.part.setTranslateX(350); 	snakePart.part.setTranslateY(350);
 		
+//		If snakeParts List is not empty then at this new part at the end.
 		int n = snakeParts.size();
 		if(n >= 1)
 		{
@@ -155,42 +159,52 @@ public class SnakeController {
 			snakePart.part.setTranslateY(tail.part.translateYProperty().get());
 		}
 		
+//		Add the new snake part to the gamePanel and List.
 		root.getChildren().add(snakePart.part);
 		snakeParts.add(snakePart);
 	}
 	
 	
 	
+	/**
+	 * Moving the snake Parts.
+	 */
 	public void MoveParts()
 	{
+//		Getting snake size.
 		int n = snakeParts.size();
+
+//		If snake has less than 1 part then there is noting to move so return.
 		if(n <= 1)	return;
 		
-//		for(int i=1; i<n; i++)
-//			snakeAnim.get(i).stop();
-		
-		
+//		Moving the last part to the second last then second last to third last and so on.
 		for(int i=n-1; i>=1; i--)
 		{
+//			Getting animation of part which will be moved.
 			TranslateTransition currAnim = snakeParts.get(i).anim;
 			
+//			Getting visible element of part which will be moved.
 			Circle currPart = snakeParts.get(i).part;
+
+//			Getting pool of the next part to the current part.
 			Deque<Point2D> 	nextPool = snakeParts.get(i-1).pool;
+			
+//			Animation duration of current part.
 			currAnim.setDuration(Duration.millis(1));
 			
-			
+//			Setting position to move to.
 			currAnim.setFromX(currPart.translateXProperty().get());	currAnim.setFromY(currPart.translateYProperty().get());
-			currAnim.setToX(nextPool.getFirst().getX());		currAnim.setToY(nextPool.getFirst().getY());
+			currAnim.setToX(nextPool.getFirst().getX());			currAnim.setToY(nextPool.getFirst().getY());
 			
 			currAnim.play();
 		}
-//		
-//		System.out.println();
-//		System.out.println(head.part.translateXProperty().get() + " " + head.part.translateYProperty().get());
-//		System.out.println(snakeParts.get(1).part.translateXProperty().get() + " " + snakeParts.get(1).part.translateYProperty().get());
-//		System.out.println();
 	}
 	
+	
+	
+	/**
+	 * Checks if we can move the snake in particular direction if it's moving in a certain direction.
+	 */
 	private boolean IsValidDirectionChange(Direction from, Direction to)
 	{
 		if(to == null)	return false;
@@ -205,12 +219,17 @@ public class SnakeController {
 	}
 	
 	
+	
+	/**
+	 * @return true if snake collided with itself.
+	 */
 	public boolean IsSelfCollided()
 	{
+//		If size of snake is <= 3 which is initial size then return false.
 		int n = snakeParts.size();
-		
 		if(n <= 3) return false;
 		
+//		Else check for collision.
 		for(int i=n-1; i>=3; i--)
 		{
 			Circle part = snakeParts.get(i).part;
@@ -222,15 +241,24 @@ public class SnakeController {
 	
 	
 	
+	/**
+	 * Moves the snake in up direction.
+	 */
 	public void MoveUp()
 	{
+//		Checking if we can move up or not.
 		if(!IsValidDirectionChange(currDirection, Direction.UP))	return;
 		
+//		Setting current direction.
 		currDirection = Direction.UP;
 		
+//		Getting the animation.
 		TranslateTransition headAnim = head.anim;
+		
+//		Stopping the previous animation.
 		headAnim.stop();
 		
+//		Setting Position and Playing animation again.
 		headAnim.setByX(0); 	headAnim.setByY(animDist);
 		headAnim.play();
 	}
@@ -239,13 +267,19 @@ public class SnakeController {
 	
 	public void MoveDown()
 	{
+//		Checking if we can move up or not.
 		if(!IsValidDirectionChange(currDirection, Direction.DOWN))	return;
 		
+//		Setting current direction.
 		currDirection = Direction.DOWN;
 		
+//		Getting the animation.
 		TranslateTransition headAnim = head.anim;
+		
+//		Stopping the previous animation.
 		headAnim.stop();
 		
+//		Setting Position and Playing animation again.
 		headAnim.setByX(0); 	headAnim.setByY(-animDist);
 		headAnim.play();
 	}
@@ -254,13 +288,19 @@ public class SnakeController {
 	
 	public void MoveLeft()
 	{
+//		Checking if we can move up or not.
 		if(!IsValidDirectionChange(currDirection, Direction.LEFT))	return;
 		
+//		Setting current direction.
 		currDirection = Direction.LEFT;
 		
+//		Getting the animation.
 		TranslateTransition headAnim = head.anim;
+		
+//		Stopping the previous animation.
 		headAnim.stop();
 		
+//		Setting Position and Playing animation again.
 		headAnim.setByX(animDist); 	headAnim.setByY(0);
 		headAnim.play();
 	}
@@ -269,14 +309,64 @@ public class SnakeController {
 	
 	public void MoveRight()
 	{
+//		Checking if we can move up or not.
 		if(!IsValidDirectionChange(currDirection, Direction.RIGHT))	return;
 		
+//		Setting current direction.
 		currDirection = Direction.RIGHT;
 		
+//		Getting the animation.
 		TranslateTransition headAnim = head.anim;
+		
+//		Stopping the previous animation.
 		headAnim.stop();
 		
+//		Setting Position and Playing animation again.
 		headAnim.setByX(-animDist); 	headAnim.setByY(0);
 		headAnim.play();
+	}
+	
+	
+	
+	/**
+	 * Remove Snake from the game Panel and clear the snakeParts list.
+	 */
+	public void RemoveSnake()
+	{
+		for(SnakePart x:snakeParts)
+			root.getChildren().remove(x.part);
+		
+		snakeParts.clear();
+		
+//		Set head and it's direction to null.
+		head = null;
+		currDirection  = null;
+	}
+	
+	
+	
+	/**
+	 * @return true if snake has no parts else false.
+	 */
+	public boolean HasNoParts()
+	{
+		return snakeParts.size() == 0? true : false;
+	}
+	
+	
+	
+	/**
+	 * Makes a new snake with 3 parts, Sets it speed and makes it move up.
+	 */
+	public void MakeInitialSnake()
+	{
+		IncreaseSize();
+		IncreaseSize();
+		IncreaseSize();
+		
+		head = snakeParts.get(0);
+		head.anim.setRate(rate);
+		
+		MoveUp();
 	}
 }
