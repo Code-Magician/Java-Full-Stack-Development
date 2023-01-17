@@ -6,9 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import Codeforces.Helper.Helper;
 
 public class UserRatings {
+//	@SerializedName("handle")					@Expose private String 	handle;
 	@SerializedName("contestId")				@Expose private Integer contestId;
 	@SerializedName("contestName")				@Expose private String 	contestName;
-//	@SerializedName("handle")					@Expose private String 	handle;
 	@SerializedName("rank")						@Expose private Integer rank;
 	@SerializedName("ratingUpdateTimeSeconds")	@Expose private Long ratingUpdateTimeSeconds;
 	@SerializedName("oldRating")				@Expose private Integer oldRating;

@@ -28,10 +28,10 @@ public class JavaFX_Charts extends Application{
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Chart Demonstration");
 		
-//		BuildPieChart(scene);
+		BuildPieChart(scene);
 //		BuildLineChart(scene); // Area Chart Similar to Line Chart.
 //		BuildBarChart(scene);
-		BuildBubbleChart(scene);
+//		BuildBubbleChart(scene);
 		
 		primaryStage.show();
 	}

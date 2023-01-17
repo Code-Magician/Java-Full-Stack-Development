@@ -13,7 +13,7 @@ public class Helper {
 		
 		return
 				Instant.ofEpochSecond(unixTime)
-				.atZone(ZoneId.of("GMT+5.5"))
+				.atZone(ZoneId.of("GMT-4"))
 				.format(formatter);
 	}
 }

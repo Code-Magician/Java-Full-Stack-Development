@@ -46,7 +46,7 @@ class GetURI{
 
 public class ApiFetcher {
 	private String handle;
-	private CodeforcesResponse<Object> responseObj;
+	private CodeforcesResponse responseObj;
 	private Gson gson;
 	
 	public ApiFetcher(String handle)
@@ -57,7 +57,7 @@ public class ApiFetcher {
 		gson = new Gson();
 	}
 	
-	public boolean fetchResult(URI url, Type type) throws IOException, InterruptedException
+	public <T> boolean fetchResult(URI url, Type type, Class<T> input) 
 	{
 		try {
 			HttpRequest request = HttpRequest.newBuilder()
@@ -69,7 +69,9 @@ public class ApiFetcher {
 		
 			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 			
-			setResponse(new CodeforcesResponse<>());
+			System.out.println(response.body());
+			
+			setResponse(new CodeforcesResponse<T>());
 			setResponse(gson.fromJson(response.body(), type));
 			
 			if(response.statusCode() == 200)
@@ -89,55 +91,90 @@ public class ApiFetcher {
 	
 	
 	
-	public void getUserInfo() throws IOException, InterruptedException, URISyntaxException
+	public CodeforcesResponse<UserInfo> getUserInfo() 
 	{
 		Type userInfoType = new TypeToken<CodeforcesResponse<UserInfo>>(){}.getType();
 		
-		while(!fetchResult(GetURI.UserInfo(handle), userInfoType))
-			Thread.sleep(2500);
-			
+		try {
+			if(!fetchResult(GetURI.UserInfo(handle), userInfoType, UserInfo.class))
+				System.out.println(responseObj.getComment());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Fetched User Info");
+		return responseObj;
 	}
 	
 	
-	public void getUserRatings() throws IOException, InterruptedException, URISyntaxException
+	public CodeforcesResponse<UserRatings> getUserRatings() 
 	{
 		Type userRatingType = new TypeToken<CodeforcesResponse<UserRatings>>(){}.getType();
 		
-		while(!fetchResult(GetURI.UserRatings(handle), userRatingType))
-			Thread.sleep(2500);
+		try {
+			if(!fetchResult(GetURI.UserRatings(handle), userRatingType, UserRatings.class))
+				System.out.println(responseObj.getComment());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Fetched User Ratings");
+		
+		return responseObj;
 	}
 	
 	
-	public void getUserBlogEntries() throws IOException, InterruptedException, URISyntaxException
+	public CodeforcesResponse<UserBlogEntries> getUserBlogEntries() 
 	{
 		Type userBlogEntriesType = new TypeToken<CodeforcesResponse<UserBlogEntries>>(){}.getType();
 
-		while(!fetchResult(GetURI.UserBlogEntries(handle), userBlogEntriesType))
-			Thread.sleep(2500);
+		try {
+			if(!fetchResult(GetURI.UserBlogEntries(handle), userBlogEntriesType, UserBlogEntries.class))
+				System.out.println(responseObj.getComment());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Fetched User BlogEntries");
+		
+		return responseObj;
 	}
 	
 	
-	public void getUserStatus() throws IOException, InterruptedException, URISyntaxException
+	public CodeforcesResponse<UserStatus> getUserStatus() 
 	{
 		Type userStatusType = new TypeToken<CodeforcesResponse<UserStatus>>(){}.getType();
 		
-		while(!fetchResult(GetURI.UserStatus(handle), userStatusType))
-			Thread.sleep(2500);
+		try {
+			if(!fetchResult(GetURI.UserStatus(handle), userStatusType, UserStatus.class))
+				System.out.println(responseObj.getComment());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Fetched User Status");
+		
+		return responseObj;
 	}
-
-	public String getHandle() {
-		return handle;
-	}
-
+	
+	
 	public void setHandle(String handle) {
 		this.handle = handle;
 	}
 
-	public CodeforcesResponse<Object> getResponse() {
+	public<T> CodeforcesResponse<T> getResponse() {
 		return responseObj;
 	}
 
-	public void setResponse(CodeforcesResponse<Object> responseObj) {
+	public<T> void setResponse(CodeforcesResponse<T> responseObj) {
 		this.responseObj = responseObj;
 	}
 }

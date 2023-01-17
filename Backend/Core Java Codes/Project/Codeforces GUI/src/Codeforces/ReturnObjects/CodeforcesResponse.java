@@ -37,4 +37,14 @@ public class CodeforcesResponse<E> {
 	{
 		this.result = result;
 	}
+	
+	
+	@Override
+	public String toString()
+	{
+		return 
+				status + '\n' + 
+				comment + '\n' + 
+				result.get(0).toString() + '\n';
+	}
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
@@ -12,6 +13,7 @@
             <Font name="Arial Bold" size="30.0" />
          </font>
       </TextField>
-      <Button fx:id="visualizeButton" disable="true" layoutX="174.0" layoutY="287.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" text="Visualize" />
+      <Button fx:id="visualizeButton" disable="true" layoutX="174.0" layoutY="287.0" mnemonicParsing="false" onAction="#VisualizeButton" prefHeight="50.0" prefWidth="250.0" text="Visualize" />
+      <ProgressIndicator fx:id="progressIndicator" layoutX="199.0" layoutY="100.0" minHeight="200.0" minWidth="200.0" visible="false" />
    </children>
 </AnchorPane>

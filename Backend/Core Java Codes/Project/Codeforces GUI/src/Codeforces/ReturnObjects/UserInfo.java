@@ -10,10 +10,10 @@ import Codeforces.Helper.Helper;
 
 
 public class UserInfo {
-//	@SerializedName("handle")					@Expose private String handle;
-//	@SerializedName("titlePhoto")				@Expose	private String titlePhoto;
 //	@SerializedName("vkId")						@Expose	private String vkId;
 //	@SerializedName("openId")					@Expose	private String openId;
+//	@SerializedName("avatar")					@Expose	private String avatar;
+	@SerializedName("handle")					@Expose private String handle;
 	@SerializedName("email")					@Expose	private String email;
 	@SerializedName("firstName")				@Expose	private String firstName;
 	@SerializedName("lastName")					@Expose	private String lastName;
@@ -28,7 +28,7 @@ public class UserInfo {
 	@SerializedName("lastOnlineTimeSeconds")	@Expose	private Long lastOnlineTimeSeconds;
 	@SerializedName("registrationTimeSeconds")	@Expose	private Long registrationTimeSeconds;
 	@SerializedName("friendOfCount")			@Expose	private Integer friendOfCount;
-	@SerializedName("avatar")					@Expose	private String avatar;
+	@SerializedName("titlePhoto")				@Expose	private String titlePhoto;
 	
 	
 	@Override
@@ -47,11 +47,16 @@ public class UserInfo {
 				rating + '\n' +
 				maxRank + '\n' +
 				maxRating + '\n' +
-				friendOfCount + '\n' +
-				avatar;
+				friendOfCount + '\n';
+//				avatar;
 	}
 	
 	
+
+	
+	public String getHandle() {
+		return handle;
+	}
 
 	public String getEmail() {
 		return (email == null)? Helper.defaultString: email;
@@ -121,7 +126,7 @@ public class UserInfo {
 		return friendOfCount;
 	}
 
-	public String getAvatar() {
-		return avatar;
+	public String getTitlePhoto() {
+		return titlePhoto;
 	}
 }
