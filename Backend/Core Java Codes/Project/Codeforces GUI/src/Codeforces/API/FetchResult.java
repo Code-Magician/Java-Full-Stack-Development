@@ -49,14 +49,26 @@ public final class FetchResult {
 	}
 	
 	
-	public void Fetch() 
+	public String Fetch() 
 	{
 		userInfo = apiFetcher.getUserInfo();
 		userStatus = apiFetcher.getUserStatus();
 		userRatings = apiFetcher.getUserRatings();
 		userBlogEntries = apiFetcher.getUserBlogEntries();
+
 		
-		System.out.println(userInfo.toString());
-		System.out.println("Fetched");
+		if(userInfo == null) 	return "Something Went Wrong";
+		if(userInfo.getStatus() != "OK")	return userInfo.getComment();
+		
+		if(userStatus == null) 	return "Something Went Wrong";
+		if(userStatus.getStatus() != "OK")	return userStatus.getComment();
+		
+		if(userRatings == null) 	return "Something Went Wrong";
+		if(userRatings.getStatus() != "OK")	return userRatings.getComment();
+		
+		if(userBlogEntries == null) 	return "Something Went Wrong";
+		if(userBlogEntries.getStatus() != "OK")	return userBlogEntries.getComment();
+		
+		return null;
 	}
 }

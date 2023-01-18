@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 
 import Codeforces.API.FetchResult;
 import Codeforces.ReturnObjects.UserBlogEntries;
@@ -16,7 +17,12 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Side;
+import javafx.scene.chart.Axis;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -36,8 +42,19 @@ public class ProfileController implements Initializable {
 	@FXML private Label totalSubmission;
 	@FXML private Label totalContests;
 	@FXML private Label totalBlogs;
+	@FXML private Label maxUps;
+	@FXML private Label maxDowns;
+	@FXML private Label maxRank;
+	@FXML private Label minRank;
 
 	@FXML private PieChart languagesUsedPieChart;
+	@FXML private PieChart verdictsPieChart;
+	@FXML private PieChart problemTagsPieChart;
+	@FXML private BarChart<String, Integer> problemIndexBarChart;
+	@FXML private NumberAxis problemIndexBarChartNumberAxis;
+	@FXML private BarChart<String, Integer> problemRatingsBarChart;
+	@FXML private NumberAxis problemRatingsBarChartNumberAxis;
+	
 	
 	
 	private FetchResult fetchResult;
@@ -47,10 +64,13 @@ public class ProfileController implements Initializable {
 	private ArrayList<UserRatings> contestList;
 	private ArrayList<UserBlogEntries> blogsList;
 	
-	private HashMap<String, Integer> languagesUsedMap; 
-	private HashMap<String, Integer> verdictsMap; 
-	private HashMap<Integer, Integer> problemRatingMap;
 	
+	private TreeMap<String, Integer> languagesUsedMap; 
+	private TreeMap<String, Integer> verdictsMap; 
+	private TreeMap<Integer, Integer> problemRatingMap;
+	private TreeMap<String, Integer> problemTagsMap;
+	private TreeMap<Character, Integer> problemIndexMap;
+	int maxUp, maxDown, bestRank, worstRank;
 	
 	
 	
@@ -64,36 +84,65 @@ public class ProfileController implements Initializable {
 		blogsList = fetchResult.getUserBlogEntries().getResult();
 		
 		
-		languagesUsedMap = new HashMap<>();
-		verdictsMap = new HashMap<>();
+		languagesUsedMap = new TreeMap<>();
+		verdictsMap = new TreeMap<>();
+		problemRatingMap = new TreeMap<>();
+		problemTagsMap = new TreeMap<>();
+		problemIndexMap = new TreeMap<>();
+		maxUp = 0;	maxDown = 0;
+		bestRank = Integer.MAX_VALUE;	worstRank = Integer.MIN_VALUE;
 		
+		
+		CalculateDetails();
 		
 		
 		Image img = new Image(userInfo.getTitlePhoto());
 		userImage.setImage(img);
+		userImage.setPreserveRatio(true);
 		
-		name.setText("Name : " + userInfo.getFirstName() + " " + userInfo.getLastName());
-		username.setText("Username : " + userInfo.getHandle());
-		rank.setText("Rank : " + userInfo.getRank() + "(max : " + userInfo.getMaxRank() + " )");
-		rating.setText("Rating : " + userInfo.getRating().toString() + "(max : " + userInfo.getMaxRating() + " )");
-		lastOnline.setText("Last Visit : " + userInfo.getLastOnlineTimeSeconds());
-		registered.setText("Registered : " + userInfo.getRegistrationTimeSeconds());
-		friendOf.setText("Friends of : " + userInfo.getFriendOfCount());
-		address.setText("Address : " + userInfo.getOrganization() + " " + userInfo.getCity() + " " + userInfo.getCountry());
-		email.setText("Email : " + userInfo.getEmail());
-		totalSubmission.setText("Submissions : " + submissionList.size());
-		totalBlogs.setText("Blogs : " + blogsList.size());
-		totalContests.setText("Contests : " + contestList.size());
+		name.setText(("Name : " + userInfo.getFirstName() + " " + userInfo.getLastName().toUpperCase()));
+		username.setText(("Username : " + userInfo.getHandle()).toUpperCase());
+		rank.setText(("Rank : " + userInfo.getRank() + "( max : " + userInfo.getMaxRank() + " )").toUpperCase());
+		rating.setText(("Rating : " + userInfo.getRating().toString() + "( max : " + userInfo.getMaxRating() + " )").toUpperCase());
+		lastOnline.setText(("Last Visit : " + userInfo.getLastOnlineTimeSeconds()).toUpperCase());
+		registered.setText(("Registered : " + userInfo.getRegistrationTimeSeconds()).toUpperCase());
+		friendOf.setText(("Friends of : " + userInfo.getFriendOfCount()).toUpperCase());
+		address.setText(("Address : " + userInfo.getOrganization() + " " + userInfo.getCity() + " " + userInfo.getCountry()).toUpperCase());
+		email.setText(("Email : " + userInfo.getEmail()).toUpperCase());
+		totalSubmission.setText(("Submissions : " + submissionList.size()).toUpperCase());
+		totalBlogs.setText(("Blogs : " + blogsList.size()).toUpperCase());
+		totalContests.setText(("Contests : " + contestList.size()).toUpperCase());
+		maxUps.setText(("Max Up : " + maxUp).toUpperCase());
+		maxDowns.setText(("Max Down : " + maxDown).toUpperCase());
+		maxRank.setText(("Best Rank : " + bestRank).toUpperCase());
+		minRank.setText(("Worst Rank : " + worstRank).toUpperCase());
 		
 		
 		
 //		CountLanguagesUsed();
-//		MakeLanguagesUsedPieChart();
-//		MakeVerdictsPieChart();
-		
+		MakeLanguagesUsedPieChart();
+		MakeVerdictsPieChart();
+		MakeProblemTagsPieChart();
+		MakeProblemIndexBarChart();
+		MakeProblemRatingsBarChart();
 	}	
 	
 	
+	
+	private void CalculateDetails()
+	{
+		for(UserRatings x:contestList)
+		{
+			Integer oldRating = x.getOldRating();
+			Integer newRating = x.getNewRating();
+			Integer rank = x.getRank();
+			
+			maxUp = Math.max(maxUp, newRating - oldRating);
+			maxDown = Math.min(maxDown, newRating - oldRating);
+			bestRank = Math.min(bestRank, rank);
+			worstRank = Math.max(worstRank, rank);
+		}
+	}
 	
 	
 	private void CountLanguagesUsed()
@@ -110,7 +159,7 @@ public class ProfileController implements Initializable {
 				languagesUsedMap.put(key, temp);
 			}
 			else {
-				languagesUsedMap.put(key, 0);
+				languagesUsedMap.put(key, 1);
 			}
 		}
 	}
@@ -130,7 +179,7 @@ public class ProfileController implements Initializable {
 				verdictsMap.put(key, temp);
 			}
 			else {
-				verdictsMap.put(key, 0);
+				verdictsMap.put(key, 1);
 			}
 		}
 	}
@@ -139,7 +188,10 @@ public class ProfileController implements Initializable {
 	{
 		for(UserStatus x : submissionList)
 		{
-			Integer key = x.getProblem().getPoints().intValue();
+			if(x.getVerdict() != "OK")	continue;
+			
+			Integer key = x.getProblem().getRating();
+			if(key == null) continue;
 			
 			if(problemRatingMap.containsKey(key))
 			{
@@ -153,6 +205,55 @@ public class ProfileController implements Initializable {
 			}
 		}
 	}
+	
+	
+	private void CountProblemIndex()
+	{
+		for(UserStatus x:submissionList)
+		{
+			if(x.getVerdict() != "OK")	continue;
+			
+			String keyStr = x.getProblem().getIndex();
+			Character key = keyStr.charAt(0);
+			
+			if(problemIndexMap.containsKey(key))
+			{
+				Integer value = problemIndexMap.get(key);
+				value++;
+				
+				problemIndexMap.put(key, value);
+			}
+			else {
+				problemIndexMap.put(key, 1);
+			}
+		}
+	}
+	
+	
+	private void CountProblemTags()
+	{
+		for(UserStatus x:submissionList)
+		{
+			if(x.getVerdict() != "OK")	continue;
+			
+			ArrayList<String> tags = x.getProblem().getTags();
+			
+			for(String tag:tags)
+			{	
+				if(problemTagsMap.containsKey(tag))
+				{
+					Integer value = problemTagsMap.get(tag);
+					value++;
+					
+					problemTagsMap.put(tag, value);
+				}
+				else {
+					problemTagsMap.put(tag, 1);
+				}
+			}
+		}
+	}
+	
 	
 	
 	private void MakeLanguagesUsedPieChart()
@@ -189,8 +290,77 @@ public class ProfileController implements Initializable {
 			list.add(new PieChart.Data(key, value));
 		}
 		
-		languagesUsedPieChart.setData(list);
-		languagesUsedPieChart.setLegendSide(Side.RIGHT);
-		languagesUsedPieChart.setTitle("Verdicts");
+		verdictsPieChart.setData(list);
+		verdictsPieChart.setLegendSide(Side.RIGHT);
+		verdictsPieChart.setTitle("Verdicts");
+	}
+	
+	
+	private void MakeProblemTagsPieChart()
+	{
+		CountProblemTags();
+		
+		ObservableList<Data> list = FXCollections.observableArrayList();  
+		
+		for(Map.Entry<String, Integer> x: problemTagsMap.entrySet())
+		{
+			String key = x.getKey();
+			Integer value = x.getValue();
+			
+			list.add(new PieChart.Data(key, value));
+		}
+		
+		problemTagsPieChart.setData(list);
+		problemTagsPieChart.setLegendSide(Side.RIGHT);
+		problemTagsPieChart.setTitle("Problem Tags");
+	}
+	
+	
+	private void MakeProblemIndexBarChart()
+	{
+		CountProblemIndex();
+		
+		int maxSolvedInIndex = 0;
+		for(Map.Entry<Character, Integer> x:problemIndexMap.entrySet())
+		{
+			maxSolvedInIndex = Math.max(maxSolvedInIndex, x.getValue());
+		}
+		maxSolvedInIndex += 20;
+		
+		problemIndexBarChartNumberAxis.setLowerBound(0);
+		problemIndexBarChartNumberAxis.setUpperBound(maxSolvedInIndex);
+		
+		XYChart.Series<String, Integer> series = new XYChart.Series<>();
+		for(Map.Entry<Character, Integer> x:problemIndexMap.entrySet())
+		{
+			series.getData().add(new XYChart.Data<String, Integer>(x.getKey().toString(), x.getValue()));
+		}
+		
+		problemIndexBarChart.getData().addAll(series);
+	}
+	
+	private void MakeProblemRatingsBarChart()
+	{
+		CountProblemRating();
+		
+		int maxSolvedInIndex = 0;
+		for(Map.Entry<Integer, Integer> x:problemRatingMap.entrySet())
+		{
+			maxSolvedInIndex = Math.max(maxSolvedInIndex, x.getValue());
+		}
+		maxSolvedInIndex += 20;
+		
+		problemRatingsBarChartNumberAxis.setLowerBound(0);
+		problemRatingsBarChartNumberAxis.setUpperBound(maxSolvedInIndex);
+		
+		
+		XYChart.Series<String, Integer> series = new XYChart.Series<>();
+		for(Map.Entry<Integer, Integer> x:problemRatingMap.entrySet())
+		{
+			series.getData().add(new XYChart.Data<String, Integer>(Integer.toString(x.getKey()), x.getValue()));
+			System.out.println(x.getKey() + " : " + x.getValue());
+		}
+		
+		problemRatingsBarChart.getData().addAll(series);
 	}
 }

@@ -1,5 +1,6 @@
 package Codeforces;
 	
+import Codeforces.UI.MainController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -23,6 +24,10 @@ public class Main extends Application {
 //			Making new Scene.
 			Scene scene = new Scene(root);
 			
+//			Setting size
+			primaryStage.setMaximized(true);
+			primaryStage.setResizable(false);
+			
 //			Setting Scene on the stage.
 			primaryStage.setScene(scene);
 			
@@ -37,6 +42,7 @@ public class Main extends Application {
 				}
 			});
 			
+			
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -45,7 +51,5 @@ public class Main extends Application {
 	
 	public static void main(String[] args) {
 		launch(args);
-		
-		
 	}
 }
