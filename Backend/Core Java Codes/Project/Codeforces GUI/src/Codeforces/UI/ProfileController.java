@@ -2,33 +2,42 @@ package Codeforces.UI;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import Codeforces.API.FetchResult;
+import Codeforces.Helper.Helper;
 import Codeforces.ReturnObjects.UserBlogEntries;
 import Codeforces.ReturnObjects.UserInfo;
 import Codeforces.ReturnObjects.UserRatings;
 import Codeforces.ReturnObjects.UserStatus;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Side;
-import javafx.scene.chart.Axis;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+
+
+
 
 public class ProfileController implements Initializable {
+	@FXML private TabPane basePanel;
+	
 	@FXML private ImageView userImage;
 	@FXML private Label name;
 	@FXML private Label username;
@@ -47,6 +56,8 @@ public class ProfileController implements Initializable {
 	@FXML private Label maxRank;
 	@FXML private Label minRank;
 
+	@FXML private AnchorPane contestPane;
+	@FXML private AnchorPane blogPane;
 	@FXML private PieChart languagesUsedPieChart;
 	@FXML private PieChart verdictsPieChart;
 	@FXML private PieChart problemTagsPieChart;
@@ -58,6 +69,7 @@ public class ProfileController implements Initializable {
 	
 	
 	private FetchResult fetchResult;
+	
 	
 	private UserInfo userInfo;
 	private ArrayList<UserStatus> submissionList;
@@ -74,31 +86,55 @@ public class ProfileController implements Initializable {
 	
 	
 	
+	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		fetchResult = new FetchResult();
 		
-		userInfo = fetchResult.getUserInfo().getResult().get(0);
-		submissionList = fetchResult.getUserStatus().getResult();
-		contestList = fetchResult.getUserRatings().getResult();
-		blogsList = fetchResult.getUserBlogEntries().getResult();
+//		Getting Result
+		userInfo 		= fetchResult.getUserInfo().getResult().get(0);
+		submissionList 	= fetchResult.getUserStatus().getResult();
+		contestList 	= fetchResult.getUserRatings().getResult();
+		blogsList 		= fetchResult.getUserBlogEntries().getResult();
 		
 		
-		languagesUsedMap = new TreeMap<>();
-		verdictsMap = new TreeMap<>();
-		problemRatingMap = new TreeMap<>();
-		problemTagsMap = new TreeMap<>();
-		problemIndexMap = new TreeMap<>();
+//		Initialization
+		languagesUsedMap 	= new TreeMap<>();
+		verdictsMap 		= new TreeMap<>();
+		problemRatingMap 	= new TreeMap<>();
+		problemTagsMap 		= new TreeMap<>();
+		problemIndexMap 	= new TreeMap<>();
 		maxUp = 0;	maxDown = 0;
 		bestRank = Integer.MAX_VALUE;	worstRank = Integer.MIN_VALUE;
 		
 		
+		
+		SetUpGUI();
+	}	
+	
+	
+	
+	
+	private void SetUpGUI()
+	{
+//		Setting Background
+		SetBackgroundColor();
+		
+//		Calculating details
 		CalculateDetails();
 		
+//		Making charts and tables.
+		MakeLanguagesUsedPieChart();
+		MakeVerdictsPieChart();
+		MakeProblemTagsPieChart();
+		MakeProblemIndexBarChart();
+		MakeProblemRatingsBarChart();
+		SetContestTable();
+		SetBlogTable();
 		
-		Image img = new Image(userInfo.getTitlePhoto());
-		userImage.setImage(img);
-		userImage.setPreserveRatio(true);
+		
+//		Setting user data.
+		SetUserImage();
 		
 		name.setText(("Name : " + userInfo.getFirstName() + " " + userInfo.getLastName().toUpperCase()));
 		username.setText(("Username : " + userInfo.getHandle()).toUpperCase());
@@ -116,16 +152,114 @@ public class ProfileController implements Initializable {
 		maxDowns.setText(("Max Down : " + maxDown).toUpperCase());
 		maxRank.setText(("Best Rank : " + bestRank).toUpperCase());
 		minRank.setText(("Worst Rank : " + worstRank).toUpperCase());
+	}
+	
+	
+	
+	
+	
+	private void SetBackgroundColor()
+	{
+		int rating = userInfo.getRating();
 		
+		if(rating >= 2400)		basePanel.setStyle("-fx-background-color : red");
+		else if(rating >= 2200)	basePanel.setStyle("-fx-background-color : orange");
+		else if(rating >= 1900)	basePanel.setStyle("-fx-background-color : voilet");
+		else if(rating >= 1600)	basePanel.setStyle("-fx-background-color : blue");
+		else if(rating >= 1400)	basePanel.setStyle("-fx-background-color : cyan");
+		else if(rating >= 1200)	basePanel.setStyle("-fx-background-color : green");
+		else 					basePanel.setStyle("-fx-background-color : grey");
+	}
+	
+	
+	
+	
+	public void SetBlogTable()
+	{
+		TableView<UserBlogEntries> tableView = new TableView<>();
 		
+	    final ObservableList<UserBlogEntries> data;
+	    
+	    if(blogsList!=null) data =  FXCollections.observableArrayList(blogsList);
+	    else data = FXCollections.observableArrayList();
+	    
+	    TableColumn<UserBlogEntries, String> titleColumn = new TableColumn<>("Title");
+	    titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+	    
+	    TableColumn<UserBlogEntries, String> dateColumn = new TableColumn<>("Date");
+	    dateColumn.setCellValueFactory(new PropertyValueFactory<>("creationTimeSeconds"));
+	    
+	    TableColumn<UserBlogEntries, ArrayList<String>> tagsColumn = new TableColumn<>("Tags");
+	    tagsColumn.setCellValueFactory(new PropertyValueFactory<>("tags"));
+	    
+	    TableColumn<UserBlogEntries, Integer> ratingColumn = new TableColumn<>("Rating");
+	    ratingColumn.setCellValueFactory(new PropertyValueFactory<>("rating"));
+	    
+	    tableView.setItems(data);
+	    tableView.getColumns().addAll(titleColumn, dateColumn, tagsColumn, ratingColumn);
+	    tableView.setPrefWidth(Helper.getScreenWidth());
+	    tableView.setPrefHeight(Helper.getScreenHeight());
+	    
+	    blogPane.getChildren().add(tableView);
+	}
+	
+	
+	
+	
+	private void SetContestTable()
+	{
+		TableView<UserRatings> tableView = new TableView<>();
 		
-//		CountLanguagesUsed();
-		MakeLanguagesUsedPieChart();
-		MakeVerdictsPieChart();
-		MakeProblemTagsPieChart();
-		MakeProblemIndexBarChart();
-		MakeProblemRatingsBarChart();
-	}	
+	    final ObservableList<UserRatings> data;
+	    
+	    if(contestList!=null) data =  FXCollections.observableArrayList(contestList);
+	    else data = FXCollections.observableArrayList();
+	    
+	    TableColumn<UserRatings, String> nameColumn = new TableColumn<>("Name");
+	    nameColumn.setCellValueFactory(new PropertyValueFactory<>("contestName"));
+	    
+	    TableColumn<UserRatings, Integer> rankColumn = new TableColumn<>("Rank");
+	    rankColumn.setCellValueFactory(new PropertyValueFactory<>("rank"));
+	    
+	    TableColumn<UserRatings, Integer> oldRatingColumn = new TableColumn<>("Old Rating");
+	    oldRatingColumn.setCellValueFactory(new PropertyValueFactory<>("oldRating"));
+	    
+	    TableColumn<UserRatings, Integer> newRatingColumn = new TableColumn<>("New Rating");
+	    newRatingColumn.setCellValueFactory(new PropertyValueFactory<>("newRating"));
+	    
+	    tableView.setItems(data);
+	    tableView.getColumns().addAll(nameColumn, rankColumn, oldRatingColumn, newRatingColumn);
+	    tableView.setPrefWidth(Helper.getScreenWidth());
+	    tableView.setPrefHeight(Helper.getScreenHeight());
+	    
+	    contestPane.getChildren().add(tableView);
+	}
+	
+	
+	
+	
+	private void SetUserImage()
+	{
+		Image img = new Image(userInfo.getTitlePhoto(), 350, 650, true, true);
+		userImage.setImage(img);
+		
+        if (img != null) {
+            double w = img.getWidth();
+            double h = img.getHeight();
+            
+            double midY = userImage.getFitHeight()/2.0;
+            double midX = userImage.getFitWidth()/2.0;
+            
+            userImage.setImage(img);
+            
+            userImage.setFitWidth(w);
+            userImage.setFitHeight(h);
+            
+            userImage.setTranslateY((midY) - (h/ 3));
+            userImage.setTranslateX((midX) - (w/ 2.0));
+        }
+	}
+	
 	
 	
 	
@@ -184,6 +318,8 @@ public class ProfileController implements Initializable {
 		}
 	}
 	
+	
+	
 	private void CountProblemRating()
 	{
 		for(UserStatus x : submissionList)
@@ -207,6 +343,7 @@ public class ProfileController implements Initializable {
 	}
 	
 	
+	
 	private void CountProblemIndex()
 	{
 		for(UserStatus x:submissionList)
@@ -228,6 +365,7 @@ public class ProfileController implements Initializable {
 			}
 		}
 	}
+	
 	
 	
 	private void CountProblemTags()
@@ -276,6 +414,7 @@ public class ProfileController implements Initializable {
 	}
 	
 	
+	
 	private void MakeVerdictsPieChart()
 	{
 		CountVerdicts();
@@ -296,6 +435,7 @@ public class ProfileController implements Initializable {
 	}
 	
 	
+	
 	private void MakeProblemTagsPieChart()
 	{
 		CountProblemTags();
@@ -314,6 +454,7 @@ public class ProfileController implements Initializable {
 		problemTagsPieChart.setLegendSide(Side.RIGHT);
 		problemTagsPieChart.setTitle("Problem Tags");
 	}
+	
 	
 	
 	private void MakeProblemIndexBarChart()
@@ -339,6 +480,8 @@ public class ProfileController implements Initializable {
 		problemIndexBarChart.getData().addAll(series);
 	}
 	
+	
+	
 	private void MakeProblemRatingsBarChart()
 	{
 		CountProblemRating();
@@ -362,5 +505,14 @@ public class ProfileController implements Initializable {
 		}
 		
 		problemRatingsBarChart.getData().addAll(series);
+	}
+	
+	
+	
+	
+	public void Logout(ActionEvent e)
+	{
+		SceneSwitchProvider sceneSwitchProvider =new SceneSwitchProvider();
+		sceneSwitchProvider.GotoScene(e, sceneSwitchProvider.mainScene);
 	}
 }

@@ -1,6 +1,6 @@
 package Codeforces;
 	
-import Codeforces.UI.MainController;
+import Codeforces.Helper.Helper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -9,12 +9,13 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 
 
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
-		try {
+		try {			
 //			Opening an FXML file.
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
 
@@ -24,9 +25,12 @@ public class Main extends Application {
 //			Making new Scene.
 			Scene scene = new Scene(root);
 			
-//			Setting size
-			primaryStage.setMaximized(true);
-			primaryStage.setResizable(false);
+//			Set Title
+			primaryStage.setTitle("Codeforces Visualizer");
+			
+//			Set Logo
+			primaryStage.getIcons().add(new Image("https://cdn.iconscout.com/icon/free/png-256/code-forces-3629285-3031869.png"));
+
 			
 //			Setting Scene on the stage.
 			primaryStage.setScene(scene);
@@ -44,6 +48,16 @@ public class Main extends Application {
 			
 			
 			primaryStage.show();
+			
+			
+//			Setting size
+			primaryStage.setMaximized(true);
+			primaryStage.setMinHeight(850);
+			primaryStage.setMinWidth(1500);
+			System.out.println(primaryStage.getHeight() + " " + primaryStage.getWidth());
+			Helper.setScreenHeight(primaryStage.getHeight());
+			Helper.setScreenWidth(primaryStage.getWidth());
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -25,7 +25,9 @@ class SceneSwitchProvider {
 			
 			Stage stage = (Stage)((Node)e.getSource()).getScene().getWindow();
 			stage.setScene(scene);
-
+			
+			stage.setMaximized(true);
+			
 			stage.show();
 		} catch (IOException e1) {
 			e1.printStackTrace();

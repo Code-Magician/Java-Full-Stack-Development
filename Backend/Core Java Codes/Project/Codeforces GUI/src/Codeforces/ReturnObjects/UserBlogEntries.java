@@ -12,7 +12,7 @@ public class UserBlogEntries {
 //	@SerializedName("authorHandle")					@Expose private String 	authorHandle;
 //	@SerializedName("locale")						@Expose private String 	locale;
 	@SerializedName("id")							@Expose private Integer id;
-	@SerializedName("creationTimeSeconds")			@Expose private Integer creationTimeSeconds;
+	@SerializedName("creationTimeSeconds")			@Expose private Long creationTimeSeconds;
 	@SerializedName("title")						@Expose private String 	title;
 	@SerializedName("content")						@Expose private String 	content;
 	@SerializedName("modificationTimeSeconds")		@Expose private Long modificationTimeSeconds;
@@ -48,8 +48,8 @@ public class UserBlogEntries {
 
 
 
-	public Integer getCreationTimeSeconds() {
-		return creationTimeSeconds;
+	public String getCreationTimeSeconds() {
+		return Helper.GetDateTimeFromUnixFormat(creationTimeSeconds);
 	}
 
 

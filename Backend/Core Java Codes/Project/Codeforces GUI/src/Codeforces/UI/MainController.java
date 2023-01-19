@@ -1,6 +1,8 @@
 package Codeforces.UI;
 
 import Codeforces.API.FetchResult;
+import Codeforces.Helper.Helper;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -44,7 +46,6 @@ public class MainController  {
 		commentLabel.setText("By Priyansh Singh");
 		
 		setTextFieldInputChangeListener();
-		
 		SetLogo();
 	}
 	
@@ -77,14 +78,16 @@ public class MainController  {
 	/**
 	 * Fetches data of the username that user gave as input in textfield.
 	 * @param e Action event.
+	 * @throws InterruptedException 
 	 */
-	public void VisualizeButton(ActionEvent e) 
+	public void VisualizeButton(ActionEvent e) throws InterruptedException 
 	{
-		commentLabel.setText("Loading...");
+		visualizeButton.setDisable(true);
 		
 		fetchResult.setHandle(handle);
 		String statuString = fetchResult.Fetch();
 		
+		System.out.println(statuString);
 		if(statuString != null)
 		{
 			commentLabel.setText(statuString);
@@ -92,6 +95,8 @@ public class MainController  {
 			return;
 		}
 		
+		
+		textField.setText("");
 		sceneSwitchProvider.GotoScene(e, SceneSwitchProvider.profileScene);
 	}
 
@@ -111,6 +116,8 @@ public class MainController  {
 						visualizeButton.setDisable(true);
 						return;
 					}
+					
+					System.out.println(panel.getWidth() + " " + panel.getHeight());
 					
 					handle = inputText.trim();
 					visualizeButton.setDisable(false);
