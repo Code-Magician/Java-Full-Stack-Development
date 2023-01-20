@@ -12,6 +12,9 @@ import javafx.scene.image.Image;
 
 
 public class Main extends Application {
+	final String logoUrl = "https://w7.pngwing.com/pngs/305/696/png-transparent-closed-captioning-subtitle-television-show-video-miscellaneous-television-text.png";
+	
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -22,24 +25,26 @@ public class Main extends Application {
 			Scene scene = new Scene(root);
 			
 			primaryStage.setTitle("Subtitles Generator");
-			primaryStage.getIcons().add(new Image("https://cdn.iconscout.com/icon/free/png-256/code-forces-3629285-3031869.png"));
+			primaryStage.getIcons().add(new Image(logoUrl));
 			primaryStage.setScene(scene);
 			
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-				
 				@Override
 				public void handle(WindowEvent arg0) {
-//					Exiting platform and system.
 					Platform.exit();
 					System.exit(0);
 				}
 			});
-		
-			primaryStage.setMinHeight(400);
+	
+			primaryStage.setMinHeight(500);
 			primaryStage.setMinWidth(800);
 			primaryStage.setResizable(false);
 			
 			primaryStage.show();
+			
+			
+			Controller controller = loader.getController();
+			controller.initialize(primaryStage);
 			
 		} catch(Exception e) {
 			e.printStackTrace();
