@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+	
+	<style>
+		.container{
+			font-size:30px;
+			width: 50%;
+			padding: 20px;
+			border: 2px solid black;
+			margin:auto;
+			align-content: center;
+		}
+		
+		h1{
+			align-self: center;
+		}
+		
+		.container form table tr td input{
+			font-size:30px;
+		}
+		
+	</style>
+
+</head>
+<body>
+
+	<div class="container">
+		<h1>Servlet Form Example</h1>
+		<form action="form" method="post">
+			<table>
+				<tr>
+					<td>
+						Enter Your Name : 
+					</td>
+					<td>
+						<input type="text" name="name" placeholder="Enter Name here...">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Enter Your Password : 
+					</td>
+					<td>
+						<input type="password" name="password" placeholder="Enter Password here...">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Enter Your Email : 
+					</td>
+					<td>
+						<input type="text" name="email" placeholder="Enter Email here...">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Select Your Gender : 
+					</td>
+					<td>
+						<input type="radio" value="male" name="gender"> Male &nbsp; &nbsp; 
+						<input type="radio" value="female" name="gender"> Female
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Select Your Programming Language : 
+					</td>
+					<td>
+						<select name="language">
+							<option value="c++">C++</option>
+							<option value="Java">Java</option>
+							<option value="Javascript">JavaScript</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align:right"><input type="checkbox" value="checked" name="terms"></td>
+					<td>Accept Terms and Conditions</td>
+				</tr>
+				<tr>
+					<td style="text-align:right"><input type="submit"></td>
+					<td><input type="reset"></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
