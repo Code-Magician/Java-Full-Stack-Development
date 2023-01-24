@@ -65,3 +65,8 @@ Backend/Java Installs/Pdf Box/commons-logging-1.2-bin/commons-logging-1.2/apidoc
 Backend/Java Installs/Pdf Box/commons-logging-1.2-bin/commons-logging-1.2/apidocs/resources/tab.gif
 Backend/Java Installs/Pdf Box/commons-logging-1.2-bin/commons-logging-1.2/apidocs/resources/titlebar.gif
 Backend/Java Installs/Pdf Box/commons-logging-1.2-bin/commons-logging-1.2/apidocs/resources/titlebar_end.gif
+Backend/Java Installs/Apache-Tomcat/lib/mysql-connector.jar
+Backend/Java Installs/Apache-Tomcat/lib/sqlite-jdbc-3.40.0.0.jar
+Backend/Java Installs/JDBC Drivers/mysql-connector.jar
+Backend/Java Installs/JDBC Drivers/mysql-connector-j-8.0.31.jar
+Backend/Java Installs/JDBC Drivers/sqlite-jdbc-3.40.0.0.jar
